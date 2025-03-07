@@ -5,8 +5,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'MarkovGPT - A ChatGPT Parody',
-  description: 'A fun ChatGPT parody using Markov chains',
+  title: 'MarkovGPT',
+  description: 'No one knows what the GPT stands for',
 };
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.className} bg-gray-900 text-white`}>{children}</body>
     </html>
   );
 } 
