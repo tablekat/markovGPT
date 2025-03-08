@@ -1,5 +1,12 @@
+
+export type Message = {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 // Simple Markov chain implementation
-export function generateMarkovText(input: string): string {
+export function generateMarkovText(input: string, tokenCallback: (token: string|null) => void): string {
   // Sample responses to simulate Markov chain generation
   const sampleResponses = [
     "I'm MarkovGPT, just randomly chaining words together.",
@@ -19,7 +26,19 @@ export function generateMarkovText(input: string): string {
   // 3. Use the input text as a seed
   
   // For now, just return a random response
-  return sampleResponses[Math.floor(Math.random() * sampleResponses.length)];
+  const response = sampleResponses[Math.floor(Math.random() * sampleResponses.length)];
+  let i = 0;
+  const interval = setInterval(() => {
+    const chars = Math.floor(Math.random() * 3);
+    tokenCallback(response.slice(i, i + chars));
+    i += chars;
+    if (i >= response.length) {
+      tokenCallback(null);
+      clearInterval(interval);
+    }
+  }, 33);
+
+  return response;
 }
 
 // To implement a real Markov chain later, you could do something like:
