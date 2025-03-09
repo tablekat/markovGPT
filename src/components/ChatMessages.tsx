@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Message } from "@/utils/markov";
 import "./ChatMessages.css";
+import { useChatHistory } from "./ChatHistoryProvider";
 
 // Animated character component
 function AnimatedCharacter({ char, index }: { char: string; index: number }) {

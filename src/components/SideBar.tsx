@@ -73,7 +73,7 @@ const ChatIcon = () => {
 
 export const SideBar = () => {
   const { sideBarOpen, setSideBarOpen } = useContext(SideBarContext);
-  const { chatHistoryItems } = useChatHistory();
+  const { chatHistoryItems, setSelectedChat } = useChatHistory();
 
   const timeSplits = [
     { ageSeconds: 5 * 60, title: "Now" },
@@ -87,16 +87,13 @@ export const SideBar = () => {
   const timeSplitData = useMemo(() => {
     return timeSplits.map((split, i) => {
       const lastAge = i > 0 ? timeSplits[i - 1].ageSeconds : 0;
-      console.log("checking time range!!!!!!!", lastAge, split.ageSeconds);
       const items = chatHistoryItems.filter((item) => {
         const age = Date.now() - new Date(item.timestamp).getTime();
-        console.log("age", age, "timestamp:", item.timestamp);
         return age >= lastAge * 1000 && age < split.ageSeconds * 1000;
       });
       return { ...split, items };
     });
   }, [chatHistoryItems]);
-  console.log(chatHistoryItems);
 
   return (
     <div
@@ -128,6 +125,7 @@ export const SideBar = () => {
         <button
           className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
           aria-label="New Chat"
+          onClick={() => setSelectedChat("")}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -146,7 +144,10 @@ export const SideBar = () => {
         </button>
       </div>
       <div className="mb-6">
-        <div className="flex items-center gap-3 px-3 py-3 rounded-md bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium mb-2">
+        <div
+          className="flex items-center gap-3 px-3 py-3 rounded-md bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium mb-2 cursor-pointer"
+          onClick={() => setSelectedChat("")}
+        >
           <GenerateIcon />
           <span>MarkovGPT</span>
         </div>
@@ -160,10 +161,11 @@ export const SideBar = () => {
                 {title}
               </h3>
               <div className="space-y-1">
-                {items.map(({ title }, i) => (
+                {items.map(({ key, title }, i) => (
                   <div
                     key={i}
                     className="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 rounded-md cursor-pointer text-sm"
+                    onClick={() => setSelectedChat(key)}
                   >
                     <ChatIcon />
                     <span className="truncate">{title}</span>

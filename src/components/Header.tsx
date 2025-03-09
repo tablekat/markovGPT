@@ -2,9 +2,11 @@
 
 import React, { useContext } from "react";
 import { SideBarContext } from "./SideBar";
+import { useChatHistory } from "./ChatHistoryProvider";
 
 const Header = () => {
   const { sideBarOpen, setSideBarOpen } = useContext(SideBarContext);
+  const { setSelectedChat } = useChatHistory();
 
   return (
     <header className="w-full bg-gray-900 p-4 text-white">
@@ -35,6 +37,7 @@ const Header = () => {
               <button
                 className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
                 aria-label="New Chat"
+                onClick={() => setSelectedChat("")}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

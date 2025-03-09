@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { Message } from "@/utils/markov";
 
 interface ChatHistoryItem {
@@ -10,10 +17,14 @@ interface ChatHistoryItem {
 }
 
 interface ChatHistoryContextType {
+  messages: Message[];
+  setMessages: Dispatch<SetStateAction<Message[]>>;
+  selectedChat: string;
+  setSelectedChat: (key: string) => void;
   chatHistoryItems: ChatHistoryItem[];
   addChatHistoryItem: (item: ChatHistoryItem) => void;
   loadChatHistory: (key: string) => Message[];
-  setChatHistory: (key: string, items: ChatHistoryItem[]) => void;
+  setChatHistory: (key: string, items: Message[]) => void;
   // TODO(kat): Add a way to update chat history item title and update timestamp.
 }
 
@@ -22,13 +33,31 @@ const ChatHistoryContext = createContext<ChatHistoryContextType | undefined>(
 );
 
 const useChatHistoryLocalStorage = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [chatHistoryItems, setChatHistoryItems] = useState<ChatHistoryItem[]>(
     []
   );
+  const [selectedChat, setSelectedChat] = useState<string>("");
 
   const addChatHistoryItem = (item: ChatHistoryItem) => {
-    setChatHistoryItems((prev) => [...prev, item]);
-    localStorage.setItem("chatHistory", JSON.stringify(setChatHistoryItems));
+    setChatHistoryItems((prev) => [item, ...prev]);
+    localStorage.setItem("chatHistory", JSON.stringify(chatHistoryItems));
+  };
+
+  const setSelectedChatPrime = (key: string) => {
+    if (key === "") {
+      setMessages([]);
+      const id = Math.random().toString();
+      setSelectedChat(id);
+      addChatHistoryItem({
+        key: id,
+        title: "New Chat with id " + id,
+        timestamp: new Date(),
+      });
+    } else {
+      setSelectedChat(key);
+      setMessages(loadChatHistory(key));
+    }
   };
 
   const loadChatHistory = (key: string) => {
@@ -39,35 +68,31 @@ const useChatHistoryLocalStorage = () => {
     return [];
   };
 
-  const setChatHistory = (key: string, items: ChatHistoryItem[]) => {
+  const setChatHistory = (key: string, items: Message[]) => {
     localStorage.setItem("chatHistory-" + key, JSON.stringify(items));
   };
 
   useEffect(() => {
-    setChatHistoryItems([
-      { key: "1", title: "Understanding randomness", timestamp: new Date() },
-      {
-        key: "2",
-        title: "Comparing language models",
-        timestamp: new Date(new Date().getTime() - 1000 * 60 * 60 * 24),
-      },
-      {
-        key: "3",
-        title: "Text generation basics",
-        timestamp: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 2),
-      },
-      {
-        key: "4",
-        title: "Markov chain explanation",
-        timestamp: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 3),
-      },
-    ]);
-    // setChatHistoryItems(
-    //   JSON.parse(localStorage.getItem("chatHistory") || "[]")
-    // );
+    const items = JSON.parse(localStorage.getItem("chatHistory") || "[]");
+    items.sort((a: ChatHistoryItem, b: ChatHistoryItem) => {
+      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    });
+    setChatHistoryItems(items);
   }, []);
 
+  useEffect(() => {
+    setChatHistory(selectedChat, messages);
+  }, [messages, selectedChat]);
+
+  useEffect(() => {
+    setMessages(loadChatHistory(selectedChat));
+  }, [selectedChat]);
+
   return {
+    messages,
+    setMessages,
+    selectedChat,
+    setSelectedChat: setSelectedChatPrime,
     chatHistoryItems,
     addChatHistoryItem,
     loadChatHistory,
@@ -81,6 +106,10 @@ export const ChatHistoryProvider = ({
   children: React.ReactNode;
 }) => {
   const {
+    messages,
+    setMessages,
+    selectedChat,
+    setSelectedChat,
     chatHistoryItems,
     addChatHistoryItem,
     loadChatHistory,
@@ -90,6 +119,10 @@ export const ChatHistoryProvider = ({
   return (
     <ChatHistoryContext.Provider
       value={{
+        messages,
+        setMessages,
+        selectedChat,
+        setSelectedChat,
         chatHistoryItems,
         addChatHistoryItem,
         loadChatHistory,

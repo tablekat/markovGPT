@@ -12,6 +12,7 @@ import { generateMarkovText, Message } from "@/utils/markov";
 import TextInput from "./TextInput";
 import ChatMessages from "./ChatMessages";
 import "./ChatInterface.css";
+import { useChatHistory } from "./ChatHistoryProvider";
 
 function useGenerateText(onFinish: (text: string) => void) {
   const [text, setText] = useState("");
@@ -48,9 +49,17 @@ function useGenerateText(onFinish: (text: string) => void) {
 }
 
 const ChatInterface = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [enableAutoScroll, setEnableAutoScroll] = useState(true);
   const [isManualScroll, setIsManualScroll] = useState(false);
+
+  const {
+    messages,
+    setMessages,
+    selectedChat,
+    setSelectedChat,
+    loadChatHistory,
+    addChatHistoryItem,
+  } = useChatHistory();
 
   const onGenerationFinish = useCallback(
     (text: string) => {
