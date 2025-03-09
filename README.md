@@ -12,6 +12,7 @@ MarkovGPT! Who knows what the GPT stands for, don't worry about it.
 ### Getting Started
 
 2. Install dependencies
+
    ```
    npm install
    # or
@@ -19,6 +20,7 @@ MarkovGPT! Who knows what the GPT stands for, don't worry about it.
    ```
 
 3. Start the development server
+
    ```
    npm run dev
    # or
@@ -27,3 +29,6 @@ MarkovGPT! Who knows what the GPT stands for, don't worry about it.
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
+## Screenshots
+
+![MarkovGPT Interface](/screenshot/ui-screenshot1.png)
