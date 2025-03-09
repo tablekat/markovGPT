@@ -6,8 +6,10 @@ import {
   useContext,
   Dispatch,
   SetStateAction,
+  useMemo,
 } from "react";
 import "./SideBar.css";
+import { useChatHistory } from "./ChatHistoryProvider";
 
 export const SideBarContext = createContext<{
   sideBarOpen: boolean;
@@ -22,7 +24,7 @@ export const SideBarProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [sideBarOpen, setSideBarOpen] = useState(false);
+  const [sideBarOpen, setSideBarOpen] = useState(true);
 
   return (
     <SideBarContext.Provider value={{ sideBarOpen, setSideBarOpen }}>
@@ -71,6 +73,30 @@ const ChatIcon = () => {
 
 export const SideBar = () => {
   const { sideBarOpen, setSideBarOpen } = useContext(SideBarContext);
+  const { chatHistoryItems } = useChatHistory();
+
+  const timeSplits = [
+    { ageSeconds: 5 * 60, title: "Now" },
+    { ageSeconds: 30 * 60, title: "1 hour ago" },
+    { ageSeconds: 24 * 60 * 60, title: "Today" },
+    { ageSeconds: 2 * 24 * 60 * 60, title: "Yesterday" },
+    { ageSeconds: 7 * 24 * 60 * 60, title: "This week" },
+    { ageSeconds: Infinity, title: "Older" },
+  ];
+
+  const timeSplitData = useMemo(() => {
+    return timeSplits.map((split, i) => {
+      const lastAge = i > 0 ? timeSplits[i - 1].ageSeconds : 0;
+      console.log("checking time range!!!!!!!", lastAge, split.ageSeconds);
+      const items = chatHistoryItems.filter((item) => {
+        const age = Date.now() - new Date(item.timestamp).getTime();
+        console.log("age", age, "timestamp:", item.timestamp);
+        return age >= lastAge * 1000 && age < split.ageSeconds * 1000;
+      });
+      return { ...split, items };
+    });
+  }, [chatHistoryItems]);
+  console.log(chatHistoryItems);
 
   return (
     <div
@@ -126,87 +152,27 @@ export const SideBar = () => {
         </div>
       </div>
       <div className="flex flex-col space-y-5">
-        <div>
-          <h3 className="text-xs uppercase text-gray-400 font-medium px-3 mb-2">
-            Today
-          </h3>
-          <div className="space-y-1">
-            {[
-              "Understanding randomness",
-              "Comparing language models",
-              "Text generation basics",
-            ].map((title, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 rounded-md cursor-pointer text-sm"
-              >
-                <ChatIcon />
-                <span className="truncate">{title}</span>
+        {timeSplitData.map(({ items, title }) => {
+          if (items.length === 0) return null;
+          return (
+            <div key={title}>
+              <h3 className="text-xs uppercase text-gray-400 font-medium px-3 mb-2">
+                {title}
+              </h3>
+              <div className="space-y-1">
+                {items.map(({ title }, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 rounded-md cursor-pointer text-sm"
+                  >
+                    <ChatIcon />
+                    <span className="truncate">{title}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <h3 className="text-xs uppercase text-gray-400 font-medium px-3 mb-2">
-            Yesterday
-          </h3>
-          <div className="space-y-1">
-            {["Markov chain explanation", "Probability distributions"].map(
-              (title, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 rounded-md cursor-pointer text-sm"
-                >
-                  <ChatIcon />
-                  <span className="truncate">{title}</span>
-                </div>
-              )
-            )}
-          </div>
-        </div>
-
-        <div>
-          <h3 className="text-xs uppercase text-gray-400 font-medium px-3 mb-2">
-            Previous 7 Days
-          </h3>
-          <div className="space-y-1">
-            {[
-              "State transition matrices",
-              "Text prediction algorithms",
-              "Building a chatbot",
-            ].map((title, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 rounded-md cursor-pointer text-sm"
-              >
-                <ChatIcon />
-                <span className="truncate">{title}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <h3 className="text-xs uppercase text-gray-400 font-medium px-3 mb-2">
-            Older
-          </h3>
-          <div className="space-y-1">
-            {[
-              "Understanding probability",
-              "Statistical modeling",
-              "Neural networks vs Markov chains",
-            ].map((title, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 rounded-md cursor-pointer text-sm"
-              >
-                <ChatIcon />
-                <span className="truncate">{title}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

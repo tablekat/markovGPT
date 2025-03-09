@@ -2,7 +2,6 @@
 
 import React, { useContext } from "react";
 import { SideBarContext } from "./SideBar";
-import "./Header.css";
 
 const Header = () => {
   const { sideBarOpen, setSideBarOpen } = useContext(SideBarContext);
@@ -11,11 +10,6 @@ const Header = () => {
     <header className="w-full bg-gray-900 p-4 text-white">
       <div className="container flex items-center justify-between">
         <div className="flex gap-4 items-center" style={{ height: 40 }}>
-          <div
-            className={`header-sidebar-padding ${
-              sideBarOpen ? "open" : "closed"
-            }`}
-          ></div>
           {!sideBarOpen && (
             <>
               <button

@@ -110,11 +110,10 @@ const ChatInterface = () => {
 
   return (
     <div
-      className="chat-interface-container w-full h-full flex flex-col items-center justify-center"
+      className="chat-interface-container w-full flex flex-col items-center justify-center"
       onScroll={handleScroll}
       onWheel={handleWheel}
     >
-      <h1>Chat Interface</h1>
       <ChatMessages
         messages={messages}
         isStreaming={isStreaming}

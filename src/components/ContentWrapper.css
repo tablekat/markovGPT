@@ -1,15 +1,15 @@
 
-.header-sidebar-padding {
+.content-sidebar-padding {
     transition: width 0.3s ease-in-out;
     height: 1.5rem;
     overflow: hidden;
 }
 
-.header-sidebar-padding.open {
+.content-sidebar-padding.open {
     /* matching w-64 class that SideBar uses */
     width: 16rem;
 }
 
-.header-sidebar-padding.closed {
+.content-sidebar-padding.closed {
     width: 0;
 }
